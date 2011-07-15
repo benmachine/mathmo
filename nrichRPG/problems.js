@@ -2455,6 +2455,9 @@ function makeChiSquare()
 	var xbar=Sx/n;
 	var SS=(Sxx-Sx*Sx/n)/(n-1);
 	var hypparms=[0,0];
+	var aString = "<ol style=\"list-style-type: lower-roman;\">";
+
+	// calculate parameters
 	switch(hyp)
 	{
 		case 0: // B(n, p) => E=np, Var=npq => p=1-(Var/E), n=E/p
@@ -2472,18 +2475,37 @@ function makeChiSquare()
 			hypparms[1]=Math.sqrt(SS);
 		break;
 	}
-	var aString = "<ul style=\"list-style-type: lower-roman;\">";
-	aString += "<li>$$"+parmnames[hyp][0]+"="+hypparms[0].toFixed(3);
-	if(nparms[hyp]===2)
+
+	// binomial
+	if(hyp===0)
 	{
-		aString+=", "+parmnames[hyp][1]+"="+hypparms[1].toFixed(3) + ".";
+		aString += "<li>$$" +
+			parmnames[hyp][0] + "=" + hypparms[0].toString() + ", " +
+			parmnames[hyp][1] + "=" + hypparms[1].toFixed(3) + ".$$</li>";
+
+		// n < 1 is nonsensical
+		if(hypparms[0] < 1)
+		{
+			aString += "</ol>";
+			aString += "<p>The binomial model cannot fit these data</p>";
+			return [qString, aString];
+		}
 	}
-	if(hyp===0&&hypparms[0]<1)
+	else
 	{
-		aString+="The binomial model cannot fit these data</li></ul>";
-		return([qString, aString]);
+		aString += "<li>$$" + parmnames[hyp][0] + "=" + hypparms[0].toFixed(3);
+		if(nparms[hyp]===2)
+		{
+			aString += ", " + parmnames[hyp][1] + "=" +
+				hypparms[1].toFixed(3);
+		}
+		aString += ".$$</li>";
 	}
-	aString += "$$</li><li></li></ul>";
+
+	// We include the ii. list item here but don't actually put the
+	// answer text in it, because it's too wide.
+	aString += "<li></li></ol>";
+
 	// The whole "combining rows" thing is going to be hard :S
 	var nrows=Math.ceil((max+1-min)/2);
 	var row=[]; // [Xl, Xh, O, E, ((O-E)^2)/E]
