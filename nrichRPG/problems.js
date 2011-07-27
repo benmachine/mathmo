@@ -2387,10 +2387,9 @@ function makeChiSquare()
 	var massfn=[massBin, massPo, massGeo, massN];
 	var genfn=[genBin, genPo, genGeo, genN];
 	var which=rand(0, 3);
-	var hyp=rand()?which:rand(0, 3);
 	var n=5*rand(10, 15);
 	var sl=pickrand(90, 95, 99);
-	var qString="The random variable \\(X\\) is modelled by a <i>"+distns[hyp]+"</i> distribution. ";
+	var qString="The random variable \\(X\\) is modelled by a <i>"+distns[which]+"</i> distribution. ";
 	qString+="A sample of size \\("+n+"\\) is drawn from \\(X\\) with the following grouped frequency data. ";
 	var sample=[],min=1e3,max=0;
 	var i;
@@ -2458,7 +2457,7 @@ function makeChiSquare()
 	var aString = "<ol style=\"list-style-type: lower-roman;\">";
 
 	// calculate parameters
-	switch(hyp)
+	switch(which)
 	{
 		case 0: // B(n, p) => E=np, Var=npq => p=1-(Var/E), n=E/p
 			hypparms[1]=1-(SS/xbar);
@@ -2477,13 +2476,16 @@ function makeChiSquare()
 	}
 
 	// binomial
-	if(hyp===0)
+	if(which===0)
 	{
 		aString += "<li>$$" +
-			parmnames[hyp][0] + "=" + hypparms[0].toString() + ", " +
-			parmnames[hyp][1] + "=" + hypparms[1].toFixed(3) + ".$$</li>";
+			parmnames[which][0] + "=" + hypparms[0].toString() + ", " +
+			parmnames[which][1] + "=" + hypparms[1].toFixed(3) + ".$$</li>";
 
 		// n < 1 is nonsensical
+		// this happened quite often when part of the question was
+		// checking if we were choosing the right model,
+		// but is now *very* unlikely.
 		if(hypparms[0] < 1)
 		{
 			aString += "</ol>";
@@ -2493,10 +2495,10 @@ function makeChiSquare()
 	}
 	else
 	{
-		aString += "<li>$$" + parmnames[hyp][0] + "=" + hypparms[0].toFixed(3);
-		if(nparms[hyp]===2)
+		aString += "<li>$$" + parmnames[which][0] + "=" + hypparms[0].toFixed(3);
+		if(nparms[which]===2)
 		{
-			aString += ", " + parmnames[hyp][1] + "=" +
+			aString += ", " + parmnames[which][1] + "=" +
 				hypparms[1].toFixed(3);
 		}
 		aString += ".$$</li>";
@@ -2513,7 +2515,7 @@ function makeChiSquare()
 	{
 		x=min+(i*2);
 		row[i]=[x, x+2, freq[i], 0, 0];
-		if(hyp===3) // N is continuous (and can't be integrated either), needs special handling (use tableN)
+		if(which===3) // N is continuous (and can't be integrated either), needs special handling (use tableN)
 		{
 			var zh=(x+2-hypparms[0])/hypparms[1];
 			var zl=(x-hypparms[0])/hypparms[1];
@@ -2527,7 +2529,7 @@ function makeChiSquare()
 		{
 			for(var j=(i===0?0:x);j<(i===nrows-1?x+100:x+2);j++) // not perfect, we're assuming the tail after 100 is essentially flat zero
 			{
-				row[i][3]+=massfn[hyp](j, hypparms[0], hypparms[1])*n;
+				row[i][3]+=massfn[which](j, hypparms[0], hypparms[1])*n;
 			}
 		}
 	}
@@ -2575,7 +2577,7 @@ function makeChiSquare()
 	}
 	aString+="\\end{array}$$</div>";
 	aString+="$$\\chi^2 = "+chisq.toFixed(3)+"$$";
-	var nu=row2.length-1-nparms[hyp];
+	var nu=row2.length-1-nparms[which];
 	aString+="$$\\nu = "+nu+"$$";
 	if(nu<1)
 	{
